@@ -3,582 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Travel Scheduler</title>
+    <title>2026 관동지방 프리미엄 여행</title>
+    <!-- Tailwind CSS (스타일링) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR & Playfair Display) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- FontAwesome (아이콘) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fa; -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* 토스트 알림 애니메이션 */
-        #toast { visibility: hidden; opacity: 0; transition: opacity 0.5s, transform 0.5s; }
-        #toast.show { visibility: visible; opacity: 1; transform: translateY(-20px); }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F9FAFB; /* 아주 연한 회색 배경 */
+            color: #1F2937; /* 다크 그레이 텍스트 */
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        /* 스크롤바 숨기기 (깔끔한 탭 바를 위해) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 모달 애니메이션 */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms, transform 300ms;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body class="text-gray-800 pb-24">
+<body class="bg-gray-50 pb-20">
 
-    <!-- 헤더 영역 -->
-    <div class="relative h-72 md:h-80 w-full overflow-hidden group bg-gray-900">
-        <img id="themeImage" src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-105" alt="Theme Background">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+    <!-- 1. 헤더 & 테마 섹션 -->
+    <header class="relative h-72 w-full overflow-hidden">
+        <!-- 배경 이미지 (같은 폴더에 있는 이미지 파일 참조) -->
+        <img src="./david-edelstein-N4DbvTUDikw-unsplash.jpg" alt="Travel Theme" class="absolute inset-0 w-full h-full object-cover brightness-75">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         
-        <div class="absolute bottom-0 left-0 w-full p-6 text-white fade-in">
-            <div class="flex justify-between items-end">
-                <div class="max-w-2xl">
-                    <p class="text-xs md:text-sm font-light tracking-[0.2em] text-blue-200 mb-2 uppercase">Private Travel Itinerary</p>
-                    <h1 id="themeTitle" class="text-3xl md:text-5xl font-bold leading-tight mb-2 drop-shadow-lg">2월 구정 관동지방 여행</h1>
-                    <p id="themeSubtitle" class="text-sm md:text-lg text-gray-300 font-light">2026.02.13 - 2026.02.18</p>
-                </div>
-                <button onclick="openThemeModal()" class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 p-3 rounded-full transition text-white shadow-lg">
-                    <i class="fas fa-cog text-lg"></i>
+        <div class="absolute bottom-6 left-6 text-white drop-shadow-lg">
+            <p class="text-sm tracking-widest uppercase mb-1 opacity-90">Exclusive Trip</p>
+            <h1 class="text-3xl font-serif font-bold mb-2">2월 구정 관동지방 여행</h1>
+            <p class="text-sm font-light opacity-90"><i class="fas fa-calendar-alt mr-2"></i>2026.02.13 - 02.18 (5박 6일)</p>
+        </div>
+    </header>
+
+    <!-- 2. 날짜별 탭 네비게이션 (Sticky) -->
+    <nav class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-100">
+        <div class="flex overflow-x-auto no-scrollbar py-3 px-2" id="dayTabs">
+            <!-- 자바스크립트로 탭이 생성됩니다 -->
+        </div>
+    </nav>
+
+    <!-- 3. 메인 콘텐츠 (타임라인) -->
+    <main class="max-w-3xl mx-auto px-5 py-8" id="scheduleContainer">
+        <!-- 자바스크립트로 일정이 로드됩니다 -->
+    </main>
+
+    <!-- 4. 상세 정보 모달 (숨김 상태) -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 px-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95" id="modalContent">
+            <div class="bg-slate-900 p-6 text-white relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
+                <div class="text-xs font-bold tracking-wider text-yellow-500 mb-1" id="modalTime">TIME</div>
+                <h3 class="text-xl font-bold leading-snug" id="modalTitle">Title</h3>
             </div>
-        </div>
-    </div>
-
-    <!-- 탭 네비게이션 -->
-    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-        <div class="flex overflow-x-auto no-scrollbar py-3 px-4 space-x-2" id="dayTabs">
-            <!-- 탭 동적 생성 -->
-        </div>
-    </div>
-
-    <!-- 스케줄 리스트 -->
-    <div class="max-w-3xl mx-auto px-4 py-8 min-h-[50vh]" id="scheduleList">
-        <!-- 카드 동적 생성 -->
-    </div>
-
-    <!-- 플로팅 추가 버튼 -->
-    <button onclick="openScheduleModal()" class="fixed bottom-8 right-6 bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl transition transform hover:scale-110 active:scale-95 z-50">
-        <i class="fas fa-plus"></i>
-    </button>
-
-    <!-- 저장 완료 토스트 알림 -->
-    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-[60] flex items-center gap-2">
-        <i class="fas fa-check-circle text-green-400"></i>
-        <span>저장되었습니다</span>
-    </div>
-
-    <!-- 모달: 일정 추가/수정 -->
-    <div id="scheduleModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeScheduleModal()"></div>
-        <div class="absolute bottom-0 md:top-1/2 md:left-1/2 md:bottom-auto md:transform md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-[550px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            
-            <!-- 모달 헤더 -->
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-lg font-bold text-gray-800" id="modalTitle">일정 추가</h3>
-                <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <!-- 모달 바디 (스크롤 가능) -->
-            <div class="p-6 overflow-y-auto custom-scrollbar">
-                <form id="scheduleForm" onsubmit="handleScheduleSubmit(event)" class="space-y-5">
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">날짜 (Day)</label>
-                            <select id="inputDayId" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium">
-                                <!-- JS로 채움 -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">시간</label>
-                            <input type="time" id="inputTime" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium">
-                        </div>
+            <div class="p-6">
+                <!-- 이동 정보 -->
+                <div class="flex items-start mb-4" id="modalTransitBox">
+                    <div class="bg-gray-100 p-2 rounded-lg text-gray-500 mr-3">
+                        <i class="fas fa-car"></i>
                     </div>
-
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">장소 / 일정명</label>
-                        <input type="text" id="inputTitle" required placeholder="예: 나리타 공항 도착" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-lg">
+                        <p class="text-xs text-gray-400 font-bold uppercase">이동 시간</p>
+                        <p class="text-sm font-medium text-gray-800" id="modalTransit">정보 없음</p>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">상세 메모</label>
-                        <textarea id="inputMemo" rows="3" placeholder="예: 12시 픽업 예약, 2번 출구 앞" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">관련 링크 (구글맵 등)</label>
-                        <div class="flex">
-                            <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500">
-                                <i class="fas fa-link"></i>
-                            </span>
-                            <input type="url" id="inputLink" placeholder="https://" class="w-full p-3 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">이동 정보</label>
-                        <input type="text" id="inputTransport" placeholder="예: 렌터카 40분" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">사진 첨부</label>
-                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative overflow-hidden">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6 text-gray-400" id="uploadPlaceholder">
-                                <i class="fas fa-camera text-2xl mb-2"></i>
-                                <p class="text-xs">클릭하여 이미지 업로드</p>
-                            </div>
-                            <img id="previewImage" class="absolute inset-0 w-full h-full object-cover hidden">
-                            <input type="file" id="inputImage" accept="image/*" class="hidden">
-                            <button type="button" id="removeImageBtn" class="absolute top-2 right-2 bg-white/80 p-1 rounded-full text-red-500 shadow-sm hidden z-10" onclick="removeImage(event)">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </label>
-                    </div>
-
-                    <div class="pt-2 flex gap-3">
-                        <button type="button" onclick="deleteSchedule()" id="deleteBtn" class="hidden px-5 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition">
-                            <i class="fas fa-trash-alt mr-2"></i>삭제
-                        </button>
-                        <button type="submit" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
-                            완료 및 저장
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달: 테마 설정 -->
-    <div id="themeModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeThemeModal()"></div>
-        <div class="absolute md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-[400px] bg-white rounded-xl shadow-2xl p-6 fade-in top-20 mx-4 md:mx-0">
-            <h3 class="text-xl font-bold mb-4 text-gray-800">여행 설정</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">여행 제목</label>
-                    <input type="text" id="editThemeTitle" class="w-full p-3 border rounded-lg bg-gray-50">
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">여행 기간/부제목</label>
-                    <input type="text" id="editThemeSubtitle" class="w-full p-3 border rounded-lg bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">배경 이미지 URL</label>
-                    <input type="text" id="editThemeImage" class="w-full p-3 border rounded-lg bg-gray-50 text-sm">
-                </div>
-                <button onclick="saveTheme()" class="w-full py-3 bg-gray-900 text-white rounded-lg font-bold hover:bg-black transition">적용하기</button>
                 
-                <hr class="border-gray-100 my-4">
-                <button onclick="resetAllData()" class="w-full py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition">모든 데이터 초기화 (복구 불가)</button>
+                <!-- 비고/상세설명 -->
+                <div class="mb-6">
+                    <p class="text-xs text-gray-400 font-bold uppercase mb-1">상세 정보 (비고)</p>
+                    <p class="text-gray-700 text-sm leading-relaxed whitespace-pre-line bg-yellow-50/50 p-3 rounded-lg border border-yellow-100" id="modalRemarks">내용이 없습니다.</p>
+                </div>
+
+                <!-- 지도 버튼 -->
+                <a href="#" id="modalMapLink" target="_blank" class="block w-full py-3 bg-slate-900 text-white text-center rounded-xl font-medium shadow-lg hover:bg-slate-800 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fas fa-map-marked-alt"></i> 구글 맵 열기
+                </a>
             </div>
         </div>
     </div>
 
+    <!-- 데이터 스크립트 -->
     <script>
-        // --- 초기 데이터 (CSV 내용 완벽 반영) ---
-        const initialData = [
+        // CSV 데이터 원본을 자바스크립트 객체로 변환
+        const tripData = [
             {
-                dayId: 1, date: "2.13 (금)", title: "1일차", 
+                day: 1,
+                date: "2월 13일 (금)",
                 items: [
-                    { time: "09:00", title: "인천공항 제2터미널 출발", memo: "OZ102편 나리타행", link: "", transport: "비행기", image: "" },
-                    { time: "12:00", title: "나리타공항 도착 & 렌터카 수령", memo: "Relax Car Rental (080-4131-8800). 12시 픽업 예약 완료.", link: "", transport: "픽업 차량", image: "" },
-                    { time: "13:30", title: "미츠이 아울렛 파크 키사라즈", memo: "점심 식사 및 쇼핑", link: "", transport: "차량 1시간 20분", image: "" },
-                    { time: "15:30", title: "훗쓰 공원 전망대", memo: "도쿄만 전망 감상", link: "", transport: "차량 30분", image: "" },
-                    { time: "16:30", title: "BOTANICAL POOL CLUB 체크인", memo: "체크인 15:00부터 가능. 수영복 준비.", link: "", transport: "차량 40분", image: "" }
+                    { time: "09:00", title: "인천공항 제 2 터미널 나리타행 비행기 탑승", link: "https://maps.app.goo.gl/yjWVyHoHsaKqQsCT7", transit: "", remark: "OZ102" },
+                    { time: "12:00", title: "나리타공항 도착, Relax Car Rental Tokyo 렌터카 수령", link: "https://maps.app.goo.gl/Dw8sz6SbJJMrjzvB7", transit: "", remark: "080 4131 8800 전화, 직원이 픽업하러 와줄 예정 / 12시 픽업 예약" },
+                    { time: "13:30", title: "미츠이 아울렛 파크 키사라즈, 점심 식사", link: "https://maps.app.goo.gl/fAQSz9YheEVpiKt76", transit: "차량 1시간 20분", remark: "" },
+                    { time: "15:30", title: "훗쓰 공원 전망대 감상", link: "https://maps.app.goo.gl/FBxEtXgcnsFTq7sj6", transit: "차량 30분", remark: "" },
+                    { time: "16:30", title: "BOTANICAL POOL CLUB 체크인", link: "https://maps.app.goo.gl/UnpMEeyfJxBWKbDN7", transit: "차량 40분", remark: "오후 3시부터 체크인 가능" }
                 ]
             },
             {
-                dayId: 2, date: "2.14 (토)", title: "2일차", 
+                day: 2,
+                date: "2월 14일 (토)",
                 items: [
-                    { time: "11:00", title: "토젠지 절 (Tōzenji)", memo: "체크아웃 후 이동. 08:00 오픈", link: "", transport: "차량 20분", image: "" },
-                    { time: "12:20", title: "도쿄만 관음상", memo: "거대 관음상 내부 관람 가능", link: "", transport: "차량 20분", image: "" },
-                    { time: "13:30", title: "우미호타루 휴게소", memo: "도쿄만 아쿠아라인 중간 휴식", link: "", transport: "차량 30분", image: "" },
-                    { time: "14:30", title: "산케이엔 정원", memo: "일본 전통 정원 산책", link: "", transport: "차량 30분", image: "" },
-                    { time: "16:00", title: "그란베리 파크", memo: "스누피 뮤지엄 위치", link: "", transport: "차량 40분", image: "" },
-                    { time: "19:00", title: "SHELTER.道志 체크인", memo: "바베큐/사우나 장비 무료. 마트 장보기.", link: "", transport: "차량 1시간", image: "" }
+                    { time: "11:00", title: "체크아웃 후 토젠지 절로 이동", link: "https://maps.app.goo.gl/vZRW32R8WmkDhCpGA", transit: "차량 20분", remark: "오전 8시부터 영업" },
+                    { time: "12:20", title: "도쿄만 관음상 감상", link: "https://maps.app.goo.gl/QgoCDhqAfHqrsFGD9", transit: "차량 20분", remark: "오전 8시부터 영업" },
+                    { time: "13:30", title: "아쿠아라인 우미호타루 휴게소", link: "https://maps.app.goo.gl/gJVmRMQsCh8aC4RC6", transit: "차량 30분", remark: "" },
+                    { time: "14:30", title: "산케이엔 방문", link: "https://maps.app.goo.gl/BSExVcoBM9M32tTL7", transit: "차량 30분", remark: "영업 시간 오전 9시 ~ 오후 5시" },
+                    { time: "16:00", title: "그란베리 파크 방문", link: "https://maps.app.goo.gl/MF9S3kggVv5ztqxb9", transit: "차량 40분", remark: "스누피 뮤지엄 위치" },
+                    { time: "19:00", title: "SHELTER.道志 체크인", link: "https://maps.app.goo.gl/j3SwdayimVoegjEs6", transit: "차량 1시간", remark: "바베큐, 사우나 장비 무료" }
                 ]
             },
             {
-                dayId: 3, date: "2.15 (일)", title: "3일차", 
+                day: 3,
+                date: "2월 15일 (일)",
                 items: [
-                    { time: "11:00", title: "오시노 핫카이", memo: "체크아웃(10:00) 후 이동. 맑은 연못 구경.", link: "", transport: "차량 1시간", image: "" },
-                    { time: "13:00", title: "하쿠쵸하마 (백조의 호수)", memo: "근처 카페 Jura Noire 도보 5분", link: "", transport: "차량 10분", image: "" },
-                    { time: "14:00", title: "CYCL 사우나", memo: "예약시간 13:30 ~ 16:00 (시간 엄수)", link: "", transport: "차량 10분", image: "" },
-                    { time: "16:00", title: "유야케노 나기사 전망대", memo: "일몰 감상 포인트", link: "", transport: "차량 5분", image: "" },
-                    { time: "17:00", title: "ietona 체크인", memo: "프라이빗 빌라. 냉탕 있음.", link: "", transport: "차량 20분", image: "" },
-                    { time: "18:30", title: "샤부샤부 오마카세", memo: "FRESH WATER shabushabu (숙소 운영)", link: "", transport: "도보 3분", image: "" }
+                    { time: "11:00", title: "체크아웃 후 오시노 핫카이 이동", link: "https://maps.app.goo.gl/xqAmUYCdkThEdp7J7", transit: "차량 1시간", remark: "체크아웃 오전 10시" },
+                    { time: "13:00", title: "아라쿠라야마 센겐공원 이동", link: "https://maps.app.goo.gl/z3VHecbkS7tr8Fie8", transit: "차량 20분", remark: "" },
+                    { time: "14:00", title: "CYCL 이동, 사우나", link: "https://maps.app.goo.gl/jupNTArr7PqEhpA79", transit: "차량 10분", remark: "예약 시간 13:30 ~ 16:00" },
+                    { time: "16:00", title: "夕焼けの渚展望台 전망대 감상", link: "https://maps.app.goo.gl/9hyRVQ7j278heC8D9", transit: "차량 5분", remark: "" },
+                    { time: "17:00", title: "ietona 체크인", link: "https://maps.app.goo.gl/F3gbt5Uz2BwbProw5", transit: "차량 20분", remark: "" },
+                    { time: "18:30", title: "샤부샤부 오마카세 저녁식사", link: "https://maps.app.goo.gl/xz6zcXrjGzyK3osp9", transit: "도보 3분", remark: "ietona 에서 같이 운영하는 식당" }
                 ]
             },
             {
-                dayId: 4, date: "2.16 (월)", title: "4일차", 
+                day: 4,
+                date: "2월 16일 (월)",
                 items: [
-                    { time: "10:00", title: "후지산 전망대 (Fujisan Deck)", memo: "체크아웃(10:00) 바로 이동", link: "", transport: "차량 5분", image: "" },
-                    { time: "10:30", title: "후지산 파노라마 로프웨이", memo: "대기 줄 확인. 사전 예매 권장.", link: "", transport: "차량 10분", image: "" },
-                    { time: "12:00", title: "오이시 공원", memo: "호수 건너편 후지산 뷰", link: "", transport: "차량 15분", image: "" },
-                    { time: "14:00", title: "천국의 토리이 (요오하이쇼)", memo: "언덕 위 사진 명소", link: "", transport: "차량 15분", image: "" },
-                    { time: "16:30", title: "하얏트 리젠시 요코하마", memo: "이동 중 휴게소 경유.", link: "", transport: "차량 1.5시간", image: "" },
-                    { time: "17:30", title: "요코하마 차이나타운", memo: "호텔 주차 후 도보 이동", link: "", transport: "도보 10분", image: "" }
+                    { time: "10:00", title: "체크아웃 후 후지산 전망대 이동", link: "https://maps.app.goo.gl/k5sZC4wkjC494duy5", transit: "차량 5분", remark: "체크아웃 오전 10시" },
+                    { time: "10:30", title: "카와구치코 후지산 파노라마 로프웨이 탑승", link: "https://maps.app.goo.gl/eJSuv6hrSM2sX5rA7", transit: "차량 10분", remark: "사전 예매 권장" },
+                    { time: "12:00", title: "오이시 공원 이동", link: "https://maps.app.goo.gl/2RJLJcdfdhbv13D66", transit: "차량 15분", remark: "" },
+                    { time: "14:00", title: "후지산 요오하이쇼 이동", link: "https://maps.app.goo.gl/YCmheL6zAUfJbNsm8", transit: "차량 15분", remark: "" },
+                    { time: "16:30", title: "하얏트 리젠시 요코하마 체크인", link: "https://maps.app.goo.gl/nePX2w9JiKuTjkF9A", transit: "차량 1시간 30분", remark: "도중에 서비스 에리어(휴게소)를 들릴 예정" },
+                    { time: "17:30", title: "체크인 후 요코하마 차이나타운 구경", link: "https://maps.app.goo.gl/4N4sQFBb57rf", transit: "", remark: "" }
                 ]
             },
             {
-                dayId: 5, date: "2.17 (화)", title: "5일차", 
+                day: 5,
+                date: "2월 17일 (화)",
                 items: [
-                    { time: "10:00", title: "야마시타 공원", memo: "아침 산책. 체크아웃 11:00", link: "", transport: "도보 5분", image: "" },
-                    { time: "12:00", title: "라라포트 도쿄 베이", memo: "대형 쇼핑몰", link: "", transport: "차량 70분", image: "" },
-                    { time: "16:00", title: "나리타산 오모테산도", memo: "전통 거리 구경", link: "", transport: "차량 40분", image: "" },
-                    { time: "17:30", title: "나리타산 신쇼지 & 공원", memo: "근처 유료 주차장 이용", link: "", transport: "도보 10분", image: "" },
-                    { time: "19:00", title: "인터내셔널 가든 호텔 나리타", memo: "마지막 밤 체크인", link: "", transport: "차량 5분", image: "" }
+                    { time: "10:00", title: "야마시타 공원 산책 후 체크아웃", link: "https://maps.app.goo.gl/DgNDZeg7EWpEXBBYA", transit: "도보 5분", remark: "체크아웃 오전 11시" },
+                    { time: "12:00", title: "라라포트 도쿄 베이 구경", link: "https://maps.app.goo.gl/ad6jffqWZUSecJ9y9", transit: "차량 1시간 10분", remark: "" },
+                    { time: "16:00", title: "나리탁산 오모테산도 거리 산책", link: "https://maps.app.goo.gl/BeTsv1Bi7Vc5E32U6", transit: "차량 40분", remark: "" },
+                    { time: "17:30", title: "나리타산 공원, 나리타산 신쇼지 산책", link: "https://maps.app.goo.gl/KMKhFN6cKm1REhEDA", transit: "도보 10분", remark: "근처 주차장에 차를 세우고 올라가기" },
+                    { time: "19:00", title: "인터내셔널 가든 호텔 나리타 체크인", link: "https://maps.app.goo.gl/PHRvDU2L4WVKMJw38", transit: "차량 5분", remark: "3시 체크인" }
                 ]
             },
             {
-                dayId: 6, date: "2.18 (수)", title: "6일차", 
+                day: 6,
+                date: "2월 18일 (수)",
                 items: [
-                    { time: "11:00", title: "렌터카 반납", memo: "Relax Car Rental Tokyo 지점", link: "", transport: "차량 10분", image: "" },
-                    { time: "13:20", title: "나리타공항 제2터미널", memo: "인천행 비행기 탑승 (여유있게 도착)", link: "", transport: "셔틀버스", image: "" }
+                    { time: "11:00", title: "Relax Car Rental Tokyo 렌터카 반납", link: "https://maps.app.goo.gl/Dw8sz6SbJJMrjzvB7", transit: "차량 10분", remark: "" },
+                    { time: "13:20", title: "나리타공항 제 2 터미널 인천행 비행기 탑승", link: "https://maps.app.goo.gl/yjWVyHoHsaKqQsCT7", transit: "", remark: "" }
                 ]
             }
         ];
 
-        // --- 전역 변수 및 상태 ---
-        let scheduleData = [];
-        let currentDayId = 1;
-        let tempImageBase64 = "";
-        let editModeIndex = null; // null이면 추가 모드, 숫자면 해당 인덱스 수정
+        let currentDayIndex = 0;
 
-        // 로컬 스토리지 로드
-        function loadData() {
-            const savedData = localStorage.getItem('myTravelSchedule_v2');
-            if (savedData) {
-                scheduleData = JSON.parse(savedData);
-            } else {
-                scheduleData = JSON.parse(JSON.stringify(initialData)); // 깊은 복사
-            }
-            
-            const savedTheme = JSON.parse(localStorage.getItem('myTravelTheme_v2'));
-            if (savedTheme) applyTheme(savedTheme);
-        }
-
-        // --- 렌더링 함수 ---
-        function init() {
-            loadData();
-            renderTabs();
-            renderSchedule();
-        }
-
+        // 탭 렌더링 함수
         function renderTabs() {
-            const container = document.getElementById('dayTabs');
-            container.innerHTML = '';
-            
-            scheduleData.forEach(day => {
-                const isActive = day.dayId === currentDayId;
-                const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            const tabContainer = document.getElementById('dayTabs');
+            tabContainer.innerHTML = '';
+
+            tripData.forEach((data, index) => {
+                const isActive = index === currentDayIndex;
+                const button = document.createElement('button');
+                button.className = `flex-shrink-0 px-5 py-2 mr-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isActive 
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-200 transform -translate-y-0.5' 
-                    : 'bg-white text-gray-500 border border-gray-100 hover:bg-gray-50 hover:text-gray-700'
+                    ? 'bg-slate-900 text-white shadow-md transform scale-105' 
+                    : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
                 }`;
-                btn.innerHTML = `${day.title} <span class="opacity-70 ml-1 text-xs font-normal">${day.date}</span>`;
-                btn.onclick = () => {
-                    currentDayId = day.dayId;
+                button.innerHTML = `<span class="block text-xs opacity-70">${index + 1}일차</span>${data.date.split(' ')[0]}`;
+                button.onclick = () => {
+                    currentDayIndex = index;
                     renderTabs();
                     renderSchedule();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
-                container.appendChild(btn);
+                tabContainer.appendChild(button);
             });
         }
 
+        // 스케줄 렌더링 함수
         function renderSchedule() {
-            const listContainer = document.getElementById('scheduleList');
-            listContainer.innerHTML = '';
+            const container = document.getElementById('scheduleContainer');
+            const dayData = tripData[currentDayIndex];
             
-            const dayData = scheduleData.find(d => d.dayId === currentDayId);
-            
-            // 시간순 자동 정렬
-            dayData.items.sort((a, b) => a.time.localeCompare(b.time));
+            let html = `
+                <div class="mb-8 animate-fade-in-up">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <span class="bg-yellow-500 w-2 h-8 mr-3 rounded-full"></span>
+                        ${dayData.day}일차 <span class="text-gray-400 font-normal text-lg ml-2">${dayData.date}</span>
+                    </h2>
+                </div>
+                <div class="relative border-l-2 border-gray-200 ml-3 space-y-8 pb-10">
+            `;
 
-            if (dayData.items.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-20 text-gray-400 fade-in">
-                        <i class="far fa-calendar-times text-4xl mb-4 opacity-50"></i>
-                        <p>등록된 일정이 없습니다.<br>우측 하단 버튼을 눌러 추가해주세요.</p>
-                    </div>`;
-                return;
-            }
-
-            dayData.items.forEach((item, index) => {
-                const el = document.createElement('div');
-                el.className = "relative flex gap-4 mb-8 group fade-in";
-                el.style.animationDelay = `${index * 0.05}s`;
-
-                const imageSection = item.image ? `
-                    <div class="mt-3 rounded-lg overflow-hidden h-40 w-full relative">
-                        <img src="${item.image}" class="w-full h-full object-cover transform transition duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    </div>` : '';
-
-                const linkBadge = item.link ? `
-                    <a href="${item.link}" target="_blank" onclick="event.stopPropagation()" class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-bold hover:bg-blue-100 transition mt-2">
-                        <i class="fas fa-location-arrow text-[10px]"></i> 지도보기
-                    </a>` : '';
-
-                const transportBadge = item.transport ? `
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs mt-2 mr-2">
-                        <i class="fas fa-car text-[10px]"></i> ${item.transport}
-                    </span>` : '';
-
-                el.innerHTML = `
-                    <!-- 타임라인 라인 -->
-                    <div class="absolute left-[3.5rem] top-8 bottom-[-2rem] w-0.5 bg-gray-100 -z-10 group-last:hidden"></div>
-                    
-                    <!-- 시간 표시 -->
-                    <div class="w-14 flex-shrink-0 flex flex-col items-end pt-1 z-10">
-                        <span class="font-bold text-gray-800 text-lg leading-none">${item.time}</span>
-                        <div class="mt-2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm ring-1 ring-blue-100"></div>
-                    </div>
-
-                    <!-- 카드 내용 -->
-                    <div class="flex-grow cursor-pointer transform transition-all duration-200 hover:-translate-y-1" onclick="openScheduleModal(${index})">
-                        <div class="bg-white p-5 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-50 hover:shadow-lg transition-shadow">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-gray-800 text-lg">${item.title}</h3>
+            dayData.items.forEach((item, idx) => {
+                // 비고 내용이 있으면 뱃지 표시
+                const hasRemark = item.remark && item.remark.trim() !== "";
+                const hasTransit = item.transit && item.transit.trim() !== "";
+                
+                html += `
+                    <div class="relative pl-8 group cursor-pointer transition transform hover:translate-x-1" onclick='openModal(${JSON.stringify(item)})'>
+                        <!-- 타임라인 점 -->
+                        <div class="absolute -left-[9px] top-1 w-5 h-5 bg-white border-4 ${hasRemark ? 'border-slate-800' : 'border-gray-300'} rounded-full group-hover:border-yellow-500 transition-colors"></div>
+                        
+                        <!-- 카드 본문 -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-md mb-1">${item.time.substring(0, 5)}</span>
+                                ${hasRemark ? '<i class="fas fa-info-circle text-yellow-500 opacity-80"></i>' : ''}
                             </div>
+                            <h3 class="text-lg font-bold text-gray-800 leading-tight mb-2 group-hover:text-slate-900">${item.title}</h3>
                             
-                            ${item.memo ? `<p class="text-sm text-gray-600 mt-2 whitespace-pre-line leading-relaxed">${item.memo}</p>` : ''}
-                            
-                            <div class="flex flex-wrap items-center">
-                                ${transportBadge}
-                                ${linkBadge}
+                            ${hasTransit ? `
+                            <div class="flex items-center text-xs text-gray-400 mt-3 bg-gray-50 p-2 rounded inline-block">
+                                <i class="fas fa-car-side mr-2"></i> ${item.transit}
                             </div>
-
-                            ${imageSection}
+                            ` : ''}
                         </div>
                     </div>
                 `;
-                listContainer.appendChild(el);
             });
+
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
-        // --- 모달 로직 ---
-        const modal = document.getElementById('scheduleModal');
+        // 모달 관련 함수
+        const modal = document.getElementById('detailModal');
+        const modalContent = document.getElementById('modalContent');
 
-        function openScheduleModal(index = null) {
-            editModeIndex = index;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        function openModal(item) {
+            document.getElementById('modalTime').textContent = item.time.substring(0, 5);
+            document.getElementById('modalTitle').textContent = item.title;
             
-            // 날짜 선택 옵션 생성 (이동 기능을 위해)
-            const daySelect = document.getElementById('inputDayId');
-            daySelect.innerHTML = '';
-            scheduleData.forEach(day => {
-                const opt = document.createElement('option');
-                opt.value = day.dayId;
-                opt.text = `${day.title} (${day.date})`;
-                if(day.dayId === currentDayId) opt.selected = true;
-                daySelect.appendChild(opt);
-            });
-
-            // 폼 초기화
-            tempImageBase64 = "";
-            const preview = document.getElementById('previewImage');
-            const placeholder = document.getElementById('uploadPlaceholder');
-            const removeBtn = document.getElementById('removeImageBtn');
-            const fileInput = document.getElementById('inputImage');
-
-            fileInput.value = ""; // 파일 인풋 초기화
-
-            if (index !== null) {
-                // 수정 모드
-                const item = scheduleData.find(d => d.dayId === currentDayId).items[index];
-                document.getElementById('modalTitle').innerText = "일정 수정";
-                document.getElementById('inputTime').value = item.time;
-                document.getElementById('inputTitle').value = item.title;
-                document.getElementById('inputMemo').value = item.memo;
-                document.getElementById('inputLink').value = item.link;
-                document.getElementById('inputTransport').value = item.transport;
-                document.getElementById('deleteBtn').classList.remove('hidden');
-
-                // 기존 이미지 처리
-                if (item.image) {
-                    tempImageBase64 = item.image; // 기존 이미지 유지
-                    preview.src = item.image;
-                    preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                    removeBtn.classList.remove('hidden');
-                } else {
-                    preview.classList.add('hidden');
-                    placeholder.classList.remove('hidden');
-                    removeBtn.classList.add('hidden');
-                }
-
+            // 비고 처리
+            const remarkEl = document.getElementById('modalRemarks');
+            if (item.remark && item.remark.trim() !== "") {
+                remarkEl.textContent = item.remark;
+                remarkEl.classList.remove('text-gray-400', 'italic');
+                remarkEl.classList.add('text-gray-700');
             } else {
-                // 추가 모드
-                document.getElementById('modalTitle').innerText = "새 일정 추가";
-                document.getElementById('scheduleForm').reset();
-                document.getElementById('inputDayId').value = currentDayId; // 현재 탭으로 기본 선택
-                
-                preview.classList.add('hidden');
-                placeholder.classList.remove('hidden');
-                removeBtn.classList.add('hidden');
-                document.getElementById('deleteBtn').classList.add('hidden');
+                remarkEl.textContent = "특이사항 없음";
+                remarkEl.classList.add('text-gray-400', 'italic');
+                remarkEl.classList.remove('text-gray-700');
             }
+
+            // 이동 시간 처리
+            const transitEl = document.getElementById('modalTransit');
+            const transitBox = document.getElementById('modalTransitBox');
+            if (item.transit && item.transit.trim() !== "") {
+                transitEl.textContent = item.transit;
+                transitBox.style.display = 'flex';
+            } else {
+                transitBox.style.display = 'none';
+            }
+
+            // 링크 처리
+            document.getElementById('modalMapLink').href = item.link;
+
+            // 모달 표시 애니메이션
+            modal.classList.remove('hidden');
+            // 약간의 지연 후 opacity 변경 (transition 효과를 위해)
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
         }
 
-        function closeScheduleModal() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // duration-300과 일치
         }
 
-        // 이미지 파일 처리
-        document.getElementById('inputImage').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    tempImageBase64 = reader.result;
-                    const preview = document.getElementById('previewImage');
-                    preview.src = reader.result;
-                    preview.classList.remove('hidden');
-                    document.getElementById('uploadPlaceholder').classList.add('hidden');
-                    document.getElementById('removeImageBtn').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
+        // 모달 바깥 클릭시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
         });
 
-        function removeImage(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            tempImageBase64 = "";
-            document.getElementById('inputImage').value = "";
-            document.getElementById('previewImage').classList.add('hidden');
-            document.getElementById('uploadPlaceholder').classList.remove('hidden');
-            document.getElementById('removeImageBtn').classList.add('hidden');
-        }
-
-        // --- 핵심: 저장 및 제출 로직 ---
-        function handleScheduleSubmit(e) {
-            e.preventDefault();
-
-            // 입력값 가져오기
-            const selectedDayId = parseInt(document.getElementById('inputDayId').value);
-            const timeVal = document.getElementById('inputTime').value;
-            
-            // 기존 데이터 가져오기 (수정 모드일 경우)
-            let finalImage = tempImageBase64;
-
-            const newItem = {
-                time: timeVal,
-                title: document.getElementById('inputTitle').value,
-                memo: document.getElementById('inputMemo').value,
-                link: document.getElementById('inputLink').value,
-                transport: document.getElementById('inputTransport').value,
-                image: finalImage
-            };
-
-            // 수정 모드
-            if (editModeIndex !== null) {
-                // 1. 현재 보고 있는 날짜의 배열에서 해당 아이템 삭제
-                const currentDayData = scheduleData.find(d => d.dayId === currentDayId);
-                
-                // 만약 사용자가 '날짜'를 다른 날로 바꿨다면?
-                if (selectedDayId !== currentDayId) {
-                    // 현재 날짜에서 삭제
-                    currentDayData.items.splice(editModeIndex, 1);
-                    // 새로운 날짜에 추가
-                    const targetDayData = scheduleData.find(d => d.dayId === selectedDayId);
-                    targetDayData.items.push(newItem);
-                    
-                    // 탭 이동 효과를 위해 현재 ID 변경
-                    currentDayId = selectedDayId;
-                } else {
-                    // 같은 날짜 내에서 수정
-                    currentDayData.items[editModeIndex] = newItem;
-                }
-            } 
-            // 추가 모드
-            else {
-                const targetDayData = scheduleData.find(d => d.dayId === selectedDayId);
-                targetDayData.items.push(newItem);
-                
-                // 일정을 추가한 날짜 탭으로 이동
-                currentDayId = selectedDayId;
-            }
-
-            saveToLocalStorage(); // 즉시 저장
-            showToast(); // 저장 알림
-            closeScheduleModal();
-            renderTabs(); // 탭 렌더링 (날짜 변경 시 필요)
+        // 초기 실행
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
             renderSchedule();
-        }
+        });
 
-        function deleteSchedule() {
-            if (confirm('이 일정을 삭제하시겠습니까?')) {
-                const dayData = scheduleData.find(d => d.dayId === currentDayId);
-                dayData.items.splice(editModeIndex, 1);
-                saveToLocalStorage();
-                closeScheduleModal();
-                renderSchedule();
-            }
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('myTravelSchedule_v2', JSON.stringify(scheduleData));
-        }
-
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }
-
-        // --- 테마 설정 ---
-        function openThemeModal() {
-            const savedTheme = JSON.parse(localStorage.getItem('myTravelTheme_v2')) || {
-                title: document.getElementById('themeTitle').innerText,
-                subtitle: document.getElementById('themeSubtitle').innerText,
-                image: document.getElementById('themeImage').src
-            };
-            
-            document.getElementById('editThemeTitle').value = savedTheme.title;
-            document.getElementById('editThemeSubtitle').value = savedTheme.subtitle;
-            document.getElementById('editThemeImage').value = savedTheme.image;
-            document.getElementById('themeModal').classList.remove('hidden');
-        }
-
-        function closeThemeModal() {
-            document.getElementById('themeModal').classList.add('hidden');
-        }
-
-        function saveTheme() {
-            const themeData = {
-                title: document.getElementById('editThemeTitle').value,
-                subtitle: document.getElementById('editThemeSubtitle').value,
-                image: document.getElementById('editThemeImage').value
-            };
-            
-            applyTheme(themeData);
-            localStorage.setItem('myTravelTheme_v2', JSON.stringify(themeData));
-            closeThemeModal();
-            showToast();
-        }
-
-        function applyTheme(data) {
-            document.getElementById('themeTitle').innerText = data.title;
-            document.getElementById('themeSubtitle').innerText = data.subtitle;
-            if(data.image) document.getElementById('themeImage').src = data.image;
-        }
-
-        function resetAllData() {
-            if(confirm("정말로 모든 데이터를 초기 상태로 되돌리시겠습니까? 작성한 내용이 모두 사라집니다.")) {
-                localStorage.removeItem('myTravelSchedule_v2');
-                localStorage.removeItem('myTravelTheme_v2');
-                location.reload();
-            }
-        }
-
-        // 앱 시작
-        init();
     </script>
 </body>
 </html>
